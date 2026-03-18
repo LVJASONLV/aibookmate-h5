@@ -1,0 +1,2323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>银发健康养生 - H5体验版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #FF6B35;
+            --primary-light: #FF8C5A;
+            --primary-dark: #E55A20;
+            --success: #3fb950;
+            --warning: #f0883e;
+            --error: #f85149;
+            --accent: #45B7D1;
+            --text-primary: #2C3E50;
+            --text-secondary: #7F8C8D;
+            --bg-primary: #F8F9FA;
+            --bg-secondary: #FFFFFF;
+            --border: #E8EAED;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 18px;
+            line-height: 1.6;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: var(--bg-primary);
+        }
+
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+
+        .page {
+            display: none;
+            min-height: 100%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== 底部TabBar ===== */
+        .tabbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .tab-item {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--text-secondary);
+            font-size: 12px;
+        }
+
+        .tab-item.active {
+            color: var(--primary);
+        }
+
+        .tab-icon {
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+
+        /* ===== 通用组件 ===== */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 16px;
+            margin: 0 12px 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .btn {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:active {
+            background: var(--primary-dark);
+            transform: scale(0.98);
+        }
+
+        .btn-large {
+            padding: 18px 24px;
+            font-size: 18px;
+            border-radius: 12px;
+            width: 100%;
+            margin: 12px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 0 12px 12px;
+        }
+
+        .grid-item {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .grid-item:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        }
+
+        .grid-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .grid-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* ===== 登录页 ===== */
+        #loginPage {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .login-logo {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .login-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .login-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .login-btn:active {
+            background: var(--bg-primary);
+        }
+
+        .login-btn.primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        /* ===== 首页 ===== */
+        .header {
+            background: linear-gradient(135deg, #F8F9FA, #FFFFFF);
+            padding: 20px 12px 16px;
+        }
+
+        .header-greeting {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .header-weather {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .reminder-list {
+            margin: 12px;
+            overflow-x: auto;
+            display: flex;
+            gap: 10px;
+            padding-bottom: 8px;
+        }
+
+        .reminder-item {
+            min-width: 140px;
+            background: linear-gradient(135deg, #ff7043, #ff5722);
+            color: white;
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 13px;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(255,107,53,0.2);
+        }
+
+        .reminder-time {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .reminder-status {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .service-grid {
+            margin: 0 12px 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .service-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .service-card:active {
+            transform: scale(0.98);
+        }
+
+        .service-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .service-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .recommendations {
+            margin: 12px;
+        }
+
+        .rec-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding: 0 0 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .rec-item {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .rec-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .rec-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .rec-title-small {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .rec-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .rec-like {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .voice-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            box-shadow: 0 4px 12px rgba(255,107,53,0.3);
+            z-index: 100;
+            transition: all 0.2s ease;
+        }
+
+        .voice-btn:active {
+            transform: scale(0.95);
+        }
+
+        .voice-pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 4px 12px rgba(255,107,53,0.3); }
+            50% { box-shadow: 0 4px 20px rgba(255,107,53,0.6); }
+        }
+
+        /* ===== 体检报告页 ===== */
+        .report-header {
+            background: linear-gradient(135deg, #45B7D1, #3CA1BB);
+            color: white;
+            padding: 20px 12px;
+            text-align: center;
+        }
+
+        .report-step {
+            display: none;
+            padding: 20px 12px;
+        }
+
+        .report-step.active {
+            display: block;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .type-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .type-btn {
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            text-align: center;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .type-btn.active {
+            border-color: var(--primary);
+            background: rgba(255,107,53,0.1);
+            color: var(--primary);
+        }
+
+        .tips-list {
+            background: linear-gradient(135deg, #ff7043, #ff5722);
+            color: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .tips-list li {
+            margin-bottom: 8px;
+            margin-left: 20px;
+        }
+
+        .tips-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .progress-bar {
+            background: var(--border);
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-items {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .progress-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .progress-status {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .report-result {
+            text-align: center;
+            padding: 20px 12px;
+        }
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--success), #2e7d32);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            box-shadow: 0 4px 12px rgba(63,185,80,0.3);
+        }
+
+        .score-number {
+            font-size: 48px;
+            font-weight: bold;
+        }
+
+        .score-text {
+            font-size: 12px;
+        }
+
+        .score-level {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 12px;
+        }
+
+        .indicator-list {
+            margin-top: 20px;
+        }
+
+        .indicator-item {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .indicator-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .indicator-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .indicator-status {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* ===== 健康管理页 ===== */
+        .health-header {
+            background: linear-gradient(135deg, #3fb950, #2e7d32);
+            color: white;
+            padding: 24px 12px;
+            text-align: center;
+        }
+
+        .health-score {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .health-level {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            overflow-x: auto;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            min-width: 80px;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 0 12px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .indicator-card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .indicator-card-left {
+            flex: 1;
+        }
+
+        .indicator-card-label {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .indicator-card-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .indicator-card-unit {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-left: 4px;
+        }
+
+        .indicator-card-right {
+            font-size: 24px;
+            color: var(--primary);
+        }
+
+        .reminder-toggle {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .reminder-info {
+            flex: 1;
+        }
+
+        .reminder-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .reminder-time-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .switch {
+            width: 48px;
+            height: 28px;
+            border-radius: 14px;
+            background: var(--border);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .switch.on {
+            background: var(--success);
+        }
+
+        .switch-dot {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: left 0.2s ease;
+        }
+
+        .switch.on .switch-dot {
+            left: 22px;
+        }
+
+        .profile-info {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .profile-row:last-child {
+            border-bottom: none;
+        }
+
+        .profile-label {
+            color: var(--text-secondary);
+        }
+
+        .profile-value {
+            font-weight: 500;
+        }
+
+        /* ===== 养生知识页 ===== */
+        .knowledge-header {
+            padding: 16px 12px;
+            background: var(--bg-secondary);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .search-btn {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 6px;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .category-list {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding-bottom: 8px;
+        }
+
+        .category-tag {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .category-tag.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .article-item {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            gap: 10px;
+        }
+
+        .article-icon {
+            font-size: 32px;
+            flex-shrink: 0;
+        }
+
+        .article-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .article-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .article-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .article-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+            font-size: 12px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        /* ===== 运动指导页 ===== */
+        .exercise-header {
+            background: linear-gradient(135deg, #ff7043, #ff5722);
+            color: white;
+            padding: 20px 12px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .tip-banner {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px;
+            font-size: 13px;
+            color: #856404;
+        }
+
+        .exercise-item {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .exercise-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .exercise-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .exercise-level {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(255,107,53,0.1);
+            color: var(--primary);
+        }
+
+        .exercise-info {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .exercise-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+
+        .feature-tag {
+            background: rgba(63,185,80,0.1);
+            color: var(--success);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .exercise-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn-small {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--bg-primary);
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .action-btn-start {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        /* ===== 个人中心页 ===== */
+        .profile-header {
+            background: linear-gradient(135deg, #FF6B35, #FF8C5A);
+            color: white;
+            padding: 24px 12px;
+            text-align: center;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 12px;
+        }
+
+        .user-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .user-phone {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .user-tags {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .stats-section {
+            display: flex;
+            justify-content: space-around;
+            background: var(--bg-secondary);
+            margin: 12px;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .stat-mini {
+            text-align: center;
+        }
+
+        .stat-mini-value {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .stat-mini-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .menu-section {
+            margin: 12px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            overflow: hidden;
+        }
+
+        .menu-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-secondary);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .menu-item {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:active {
+            background: var(--bg-primary);
+        }
+
+        .menu-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-icon {
+            font-size: 20px;
+        }
+
+        .menu-text {
+            font-size: 14px;
+        }
+
+        .menu-arrow {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        .logout-btn {
+            width: calc(100% - 24px);
+            margin: 16px 12px;
+            padding: 14px;
+            background: var(--error);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* ===== 详情页 ===== */
+        .detail-page {
+            display: none;
+        }
+
+        .detail-page.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, #45B7D1, #3CA1BB);
+            color: white;
+            padding: 16px 12px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .detail-back {
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 20px;
+        }
+
+        .detail-body {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 80px;
+        }
+
+        .content-text {
+            padding: 16px 12px;
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        .content-text h2 {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        .content-text p {
+            margin-bottom: 12px;
+        }
+
+        .content-text ul {
+            margin-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .content-text li {
+            margin-bottom: 8px;
+        }
+
+        /* ===== 运动计时 ===== */
+        .exercise-timer {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            text-align: center;
+            z-index: 101;
+            display: none;
+            min-width: 200px;
+        }
+
+        .exercise-timer.active {
+            display: block;
+        }
+
+        .timer-display {
+            font-size: 32px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 12px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .timer-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            background: var(--bg-primary);
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .timer-btn.stop {
+            background: var(--error);
+            color: white;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 375px) {
+            body {
+                font-size: 16px;
+            }
+            .card {
+                margin: 0 8px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-content" id="appContent">
+            <!-- 登录页 -->
+            <div class="page active" id="loginPage">
+                <div class="login-logo">🩺</div>
+                <div class="login-title">银发健康养生</div>
+                <div class="login-desc">专为中老年人设计的健康管理平台</div>
+                <button class="login-btn primary" onclick="app.login('wechat')">👋 微信登录</button>
+                <button class="login-btn" onclick="app.login('phone')">📱 手机号登录</button>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 24px;">
+                    登录即表示同意《用户协议》和《隐私政策》
+                </div>
+            </div>
+
+            <!-- 首页 -->
+            <div class="page" id="indexPage">
+                <div class="header">
+                    <div class="header-greeting">👋 早上好，李阿姨！</div>
+                    <div class="header-weather">☀️ 晴 25°C</div>
+                </div>
+
+                <div style="padding: 0 12px; margin-top: 16px; font-size: 14px; font-weight: bold; color: var(--text-secondary);">
+                    📋 今日健康提醒
+                </div>
+                <div class="reminder-list">
+                    <div class="reminder-item">
+                        <div class="reminder-time">💊 08:00</div>
+                        <div class="reminder-status">降压药 ✅</div>
+                    </div>
+                    <div class="reminder-item">
+                        <div class="reminder-time">🏃 09:00</div>
+                        <div class="reminder-status">晨间散步</div>
+                    </div>
+                    <div class="reminder-item">
+                        <div class="reminder-time">💧 10:00</div>
+                        <div class="reminder-status">饮水提醒</div>
+                    </div>
+                </div>
+
+                <div style="padding: 0 12px 8px; font-size: 14px; font-weight: bold; color: var(--text-secondary);">
+                    🎯 健康服务
+                </div>
+                <div class="service-grid">
+                    <div class="service-card" onclick="app.go('reportPage')">
+                        <div class="service-icon">🩺</div>
+                        <div class="service-name">体检报告</div>
+                    </div>
+                    <div class="service-card" onclick="app.go('healthPage')">
+                        <div class="service-icon">📊</div>
+                        <div class="service-name">健康管理</div>
+                    </div>
+                    <div class="service-card" onclick="app.go('knowledgePage')">
+                        <div class="service-icon">📚</div>
+                        <div class="service-name">养生知识</div>
+                    </div>
+                    <div class="service-card" onclick="app.go('exercisePage')">
+                        <div class="service-icon">🏋️</div>
+                        <div class="service-name">运动指导</div>
+                    </div>
+                </div>
+
+                <div style="padding: 0 12px 8px; font-size: 14px; font-weight: bold; color: var(--text-secondary);">
+                    💡 今日推荐
+                </div>
+                <div class="recommendations">
+                    <div class="rec-item" onclick="app.go('articleDetailPage')">
+                        <div class="rec-icon">📰</div>
+                        <div class="rec-content">
+                            <div class="rec-title-small">秋季养生小贴士</div>
+                            <div class="rec-desc">秋天易伤肺，养生重点是...</div>
+                            <div class="rec-like">👁️ 12,500 · ❤️ 120</div>
+                        </div>
+                    </div>
+                    <div class="rec-item">
+                        <div class="rec-icon">🥗</div>
+                        <div class="rec-content">
+                            <div class="rec-title-small">高血压饮食指南</div>
+                            <div class="rec-desc">控制盐分摄入，多吃蔬菜水果...</div>
+                            <div class="rec-like">👁️ 8,300 · ❤️ 95</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 体检报告页 -->
+            <div class="page" id="reportPage">
+                <div class="report-header">
+                    <div style="font-size: 18px; font-weight: bold;">🩺 体检报告</div>
+                    <div style="font-size: 14px; margin-top: 8px; opacity: 0.9;">拍照上传，智能解读</div>
+                </div>
+
+                <!-- 步骤1: 准备 -->
+                <div class="report-step active" data-step="1">
+                    <div class="step-title">选择报告类型</div>
+                    <div class="type-selector">
+                        <div class="type-btn" onclick="app.selectReportType(this, '血常规')">🩸 血常规</div>
+                        <div class="type-btn" onclick="app.selectReportType(this, '生化检查')">🧪 生化检查</div>
+                        <div class="type-btn" onclick="app.selectReportType(this, '影像检查')">📊 影像检查</div>
+                        <div class="type-btn" onclick="app.selectReportType(this, '专项检查')">🔍 专项检查</div>
+                    </div>
+
+                    <div style="margin-top: 20px; font-size: 14px; font-weight: bold; margin-bottom: 12px;">🎯 智能拍照引导</div>
+                    <div class="tips-list">
+                        <li>✅ 确保光线充足</li>
+                        <li>✅ 对准报告四角</li>
+                        <li>✅ 避免反光</li>
+                        <li>✅ 保持报告平整</li>
+                    </div>
+
+                    <button class="btn btn-primary btn-large" onclick="app.nextReportStep()">📷 开始拍照</button>
+                    <button class="btn btn-large" style="background: var(--bg-secondary); border: 1px solid var(--border); margin-top: 0; margin-bottom: 12px;">📱 从相册选择</button>
+                </div>
+
+                <!-- 步骤2: 识别中 -->
+                <div class="report-step" data-step="2">
+                    <div class="step-title">智能识别中...</div>
+                    <div style="text-align: center; padding: 40px 12px;">
+                        <div style="font-size: 40px; margin-bottom: 16px; animation: pulse 1.5s infinite;">⏳</div>
+                        <div style="font-size: 16px; font-weight: bold; margin-bottom: 20px;">正在识别您的报告</div>
+                        <div class="progress-bar" style="margin-bottom: 20px;">
+                            <div class="progress-fill" id="ocrProgress" style="width: 35%;"></div>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                            <div style="flex: 1; padding: 8px; background: var(--bg-secondary); border-radius: 4px; font-size: 12px;">
+                                <div style="margin-bottom: 4px;">📋 基本信息</div>
+                                <div style="color: var(--success);">✅</div>
+                            </div>
+                            <div style="flex: 1; padding: 8px; background: var(--bg-secondary); border-radius: 4px; font-size: 12px;">
+                                <div style="margin-bottom: 4px;">🩸 血常规</div>
+                                <div style="color: var(--success);">✅</div>
+                            </div>
+                            <div style="flex: 1; padding: 8px; background: var(--bg-secondary); border-radius: 4px; font-size: 12px;">
+                                <div style="margin-bottom: 4px;">🧪 生化</div>
+                                <div style="color: var(--warning);">⏳</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">预计剩余时间: 15秒</div>
+                    </div>
+                </div>
+
+                <!-- 步骤3: 结果 -->
+                <div class="report-step" data-step="3">
+                    <div class="step-title">📊 健康评估结果</div>
+                    <div class="report-result">
+                        <div style="text-align: left; background: var(--bg-secondary); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px;">👤 李阿姨</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">2025年11月1日 · 某某医院</div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">📊 综合健康评分</div>
+                            <div class="score-circle">
+                                <div>
+                                    <div class="score-number">85</div>
+                                    <div class="score-text">分</div>
+                                </div>
+                            </div>
+                            <div class="score-level">👍 良好</div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <div style="font-size: 14px; font-weight: bold; text-align: left; margin-bottom: 12px;">🔴 重点关注指标</div>
+                            <div class="indicator-list">
+                                <div class="indicator-item">
+                                    <div class="indicator-name">血压</div>
+                                    <div class="indicator-value">145/95 mmHg</div>
+                                    <div class="indicator-status">⚠️ 偏高 | 📈 较上月上升 5%</div>
+                                </div>
+                                <div class="indicator-item" style="border-left-color: var(--success);">
+                                    <div class="indicator-name">血糖</div>
+                                    <div class="indicator-value">6.8 mmol/L</div>
+                                    <div class="indicator-status">✅ 正常 | 📊 保持稳定</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 20px; text-align: left; background: linear-gradient(135deg, rgba(240,136,62,0.1), rgba(248,81,73,0.1)); border-radius: 8px; padding: 12px; font-size: 13px;">
+                            <div style="margin-bottom: 8px; font-weight: bold;">💡 AI 健康建议</div>
+                            <ul style="margin-left: 16px;">
+                                <li>减少盐分摄入（建议日摄盐量 < 6g）</li>
+                                <li>每日定期监测血压变化</li>
+                                <li>增加有氧运动（建议每周 3-5 次）</li>
+                            </ul>
+                        </div>
+
+                        <button class="btn btn-primary btn-large" onclick="app.nextReportStep()">返回首页</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 健康管理页 -->
+            <div class="page" id="healthPage">
+                <div class="health-header">
+                    <div class="health-score" id="healthScore">82</div>
+                    <div class="health-level">综合健康评分 · 良好</div>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="app.switchTab(this, 0)">📊 概览</button>
+                    <button class="tab-btn" onclick="app.switchTab(this, 1)">📋 记录</button>
+                    <button class="tab-btn" onclick="app.switchTab(this, 2)">🔔 提醒</button>
+                    <button class="tab-btn" onclick="app.switchTab(this, 3)">📁 档案</button>
+                </div>
+
+                <div class="tab-content active">
+                    <div class="indicator-card" onclick="app.go('indicatorDetailPage')">
+                        <div class="indicator-card-left">
+                            <div class="indicator-card-label">❤️ 血压</div>
+                            <div><span class="indicator-card-value">130/85</span><span class="indicator-card-unit">mmHg</span></div>
+                        </div>
+                        <div class="indicator-card-right">➜</div>
+                    </div>
+                    <div class="indicator-card">
+                        <div class="indicator-card-left">
+                            <div class="indicator-card-label">🩸 血糖</div>
+                            <div><span class="indicator-card-value">5.8</span><span class="indicator-card-unit">mmol/L</span></div>
+                        </div>
+                        <div class="indicator-card-right">➜</div>
+                    </div>
+                    <div class="indicator-card">
+                        <div class="indicator-card-left">
+                            <div class="indicator-card-label">⚖️ 体重</div>
+                            <div><span class="indicator-card-value">68.5</span><span class="indicator-card-unit">kg</span></div>
+                        </div>
+                        <div class="indicator-card-right">➜</div>
+                    </div>
+                    <div class="indicator-card">
+                        <div class="indicator-card-left">
+                            <div class="indicator-card-label">👟 步数</div>
+                            <div><span class="indicator-card-value">6,820</span><span class="indicator-card-unit">步</span></div>
+                        </div>
+                        <div class="indicator-card-right">✅</div>
+                    </div>
+                    <div class="indicator-card">
+                        <div class="indicator-card-left">
+                            <div class="indicator-card-label">😴 睡眠</div>
+                            <div><span class="indicator-card-value">7.5</span><span class="indicator-card-unit">小时</span></div>
+                        </div>
+                        <div class="indicator-card-right">✅</div>
+                    </div>
+                    <div class="indicator-card">
+                        <div class="indicator-card-left">
+                            <div class="indicator-card-label">💓 心率</div>
+                            <div><span class="indicator-card-value">72</span><span class="indicator-card-unit">bpm</span></div>
+                        </div>
+                        <div class="indicator-card-right">✅</div>
+                    </div>
+                </div>
+
+                <div class="tab-content">
+                    <button class="btn btn-primary btn-large" style="margin-top: 12px;">+ 添加健康记录</button>
+                    <div class="card" style="margin-top: 12px;">
+                        <div style="font-size: 14px; font-weight: bold; margin-bottom: 12px;">最近记录</div>
+                        <div style="padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px;">
+                            <div style="font-weight: 500;">血压 130/85</div>
+                            <div style="color: var(--text-secondary); margin-top: 4px;">今天 08:10</div>
+                        </div>
+                        <div style="padding: 10px 0; font-size: 13px;">
+                            <div style="font-weight: 500;">血糖 5.8</div>
+                            <div style="color: var(--text-secondary); margin-top: 4px;">今天 07:00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content">
+                    <div class="reminder-toggle" onclick="app.toggleReminder(this)">
+                        <div class="reminder-info">
+                            <div class="reminder-name">💊 降压药</div>
+                            <div class="reminder-time-text">每天 08:00</div>
+                        </div>
+                        <div class="switch on">
+                            <div class="switch-dot"></div>
+                        </div>
+                    </div>
+                    <div class="reminder-toggle" onclick="app.toggleReminder(this)">
+                        <div class="reminder-info">
+                            <div class="reminder-name">💉 降糖药</div>
+                            <div class="reminder-time-text">每天 07:30</div>
+                        </div>
+                        <div class="switch on">
+                            <div class="switch-dot"></div>
+                        </div>
+                    </div>
+                    <div class="reminder-toggle" onclick="app.toggleReminder(this)">
+                        <div class="reminder-info">
+                            <div class="reminder-name">🏃 晨间运动</div>
+                            <div class="reminder-time-text">每天 09:00</div>
+                        </div>
+                        <div class="switch on">
+                            <div class="switch-dot"></div>
+                        </div>
+                    </div>
+                    <div class="reminder-toggle" onclick="app.toggleReminder(this)">
+                        <div class="reminder-info">
+                            <div class="reminder-name">💧 喝水提醒</div>
+                            <div class="reminder-time-text">每天 10:00</div>
+                        </div>
+                        <div class="switch">
+                            <div class="switch-dot"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content">
+                    <div class="profile-info">
+                        <div class="profile-row">
+                            <span class="profile-label">年龄</span>
+                            <span class="profile-value">58岁</span>
+                        </div>
+                        <div class="profile-row">
+                            <span class="profile-label">性别</span>
+                            <span class="profile-value">女</span>
+                        </div>
+                        <div class="profile-row">
+                            <span class="profile-label">身高</span>
+                            <span class="profile-value">162 cm</span>
+                        </div>
+                        <div class="profile-row">
+                            <span class="profile-label">既往病史</span>
+                            <span class="profile-value">高血压、高血脂</span>
+                        </div>
+                        <div class="profile-row">
+                            <span class="profile-label">过敏史</span>
+                            <span class="profile-value">青霉素</span>
+                        </div>
+                        <div class="profile-row">
+                            <span class="profile-label">紧急联系</span>
+                            <span class="profile-value">李明 (儿子) 📞</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 养生知识页 -->
+            <div class="page" id="knowledgePage">
+                <div class="knowledge-header">
+                    <div class="search-box">
+                        <input type="text" class="search-input" placeholder="搜索养生知识...">
+                        <button class="search-btn">🔍</button>
+                    </div>
+                    <div class="category-list">
+                        <div class="category-tag active" onclick="app.switchCategory(this)">全部</div>
+                        <div class="category-tag" onclick="app.switchCategory(this)">季节养生</div>
+                        <div class="category-tag" onclick="app.switchCategory(this)">饮食调理</div>
+                        <div class="category-tag" onclick="app.switchCategory(this)">运动指导</div>
+                        <div class="category-tag" onclick="app.switchCategory(this)">疾病预防</div>
+                        <div class="category-tag" onclick="app.switchCategory(this)">心理健康</div>
+                    </div>
+                </div>
+
+                <div style="padding: 0 12px;">
+                    <div class="article-item" onclick="app.go('articleDetailPage')">
+                        <div class="article-icon">📰</div>
+                        <div class="article-content">
+                            <div class="article-title">秋季养生小贴士 [精选]</div>
+                            <div class="article-meta">👤 张医生 · 👁️ 3,200 · ⏱️ 5分钟</div>
+                            <div class="article-actions">
+                                <button class="action-btn">❤️ 120</button>
+                                <button class="action-btn">⭐ 45</button>
+                                <button class="action-btn">📤 分享</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="article-item">
+                        <div class="article-icon">🥗</div>
+                        <div class="article-content">
+                            <div class="article-title">高血压饮食指南</div>
+                            <div class="article-meta">👤 李医生 · 👁️ 8,300 · ⏱️ 7分钟</div>
+                            <div class="article-actions">
+                                <button class="action-btn">❤️ 95</button>
+                                <button class="action-btn">⭐ 32</button>
+                                <button class="action-btn">📤 分享</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="article-item">
+                        <div class="article-icon">🧘</div>
+                        <div class="article-content">
+                            <div class="article-title">冥想与放松技巧</div>
+                            <div class="article-meta">👤 王医生 · 👁️ 5,120 · ⏱️ 4分钟</div>
+                            <div class="article-actions">
+                                <button class="action-btn">❤️ 67</button>
+                                <button class="action-btn">⭐ 28</button>
+                                <button class="action-btn">📤 分享</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 运动指导页 -->
+            <div class="page" id="exercisePage">
+                <div class="exercise-header">
+                    <div style="font-size: 18px; font-weight: bold; margin-bottom: 12px;">🏋️ 本周运动概览</div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-value">125</div>
+                            <div class="stat-label">分钟</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">5</div>
+                            <div class="stat-label">天</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">3200</div>
+                            <div class="stat-label">卡</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">7天🔥</div>
+                            <div class="stat-label">连续</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tip-banner">
+                    ⚠️ 运动前请做好热身准备，避免运动伤害
+                </div>
+
+                <div style="padding: 0 12px;">
+                    <div class="tabs" style="margin: 0 -12px;">
+                        <button class="tab-btn active" onclick="app.switchExerciseTab(this, 'recommend')">推荐运动</button>
+                        <button class="tab-btn" onclick="app.switchExerciseTab(this, 'today')">今日计划</button>
+                        <button class="tab-btn" onclick="app.switchExerciseTab(this, 'record')">运动记录</button>
+                    </div>
+
+                    <div id="exerciseTab-recommend" class="tab-content active">
+                        <div class="exercise-item" onclick="app.go('exerciseDetailPage')">
+                            <div class="exercise-item-header">
+                                <div class="exercise-name">🥋 太极拳</div>
+                                <div class="exercise-level">低强度</div>
+                            </div>
+                            <div class="exercise-info">30分钟 · 约120千卡 · 适合45岁以上</div>
+                            <div class="exercise-features">
+                                <span class="feature-tag">改善平衡</span>
+                                <span class="feature-tag">舒缓关节</span>
+                                <span class="feature-tag">调节心率</span>
+                            </div>
+                            <div class="exercise-actions">
+                                <button class="action-btn-small">🔊 语音指导</button>
+                                <button class="action-btn-small action-btn-start">开始运动</button>
+                            </div>
+                        </div>
+
+                        <div class="exercise-item">
+                            <div class="exercise-item-header">
+                                <div class="exercise-name">🚶 健步走</div>
+                                <div class="exercise-level">低强度</div>
+                            </div>
+                            <div class="exercise-info">30分钟 · 约150千卡 · 随处可做</div>
+                            <div class="exercise-features">
+                                <span class="feature-tag">有氧锻炼</span>
+                                <span class="feature-tag">增强体力</span>
+                            </div>
+                            <div class="exercise-actions">
+                                <button class="action-btn-small">🔊 语音指导</button>
+                                <button class="action-btn-small action-btn-start">开始运动</button>
+                            </div>
+                        </div>
+
+                        <div class="exercise-item">
+                            <div class="exercise-item-header">
+                                <div class="exercise-name">🧘 八段锦</div>
+                                <div class="exercise-level">低强度</div>
+                            </div>
+                            <div class="exercise-info">20分钟 · 约80千卡 · 传统功法</div>
+                            <div class="exercise-features">
+                                <span class="feature-tag">柔和舒缓</span>
+                                <span class="feature-tag">调理身体</span>
+                            </div>
+                            <div class="exercise-actions">
+                                <button class="action-btn-small">🔊 语音指导</button>
+                                <button class="action-btn-small action-btn-start">开始运动</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="exerciseTab-today" class="tab-content">
+                        <div style="padding: 16px 0;">
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 8px;">今日进度: 60/90 分钟</div>
+                            <div style="height: 12px; background: var(--border); border-radius: 6px; overflow: hidden;">
+                                <div style="height: 100%; width: 67%; background: linear-gradient(90deg, #ff7043, #ff5722);"></div>
+                            </div>
+                            <div style="text-align: right; font-size: 12px; color: var(--text-secondary); margin-top: 4px;">67%</div>
+                        </div>
+                        <div class="exercise-item" style="cursor: default;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <div style="font-size: 14px; font-weight: 500;">🥋 太极拳</div>
+                                <div style="color: var(--success);">✅ 已完成</div>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">08:15 - 08:45 (30分钟)</div>
+                        </div>
+                        <div class="exercise-item" style="cursor: default;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <div style="font-size: 14px; font-weight: 500;">🚶 健步走</div>
+                                <div style="color: var(--primary);">进行中</div>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">17:00 - (30分钟)</div>
+                        </div>
+                    </div>
+
+                    <div id="exerciseTab-record" class="tab-content">
+                        <div style="padding: 16px 0; border-bottom: 1px solid var(--border); font-size: 13px;">
+                            <div style="font-weight: 500; margin-bottom: 8px;">🥋 太极拳 · 今天 08:15</div>
+                            <div style="display: flex; justify-content: space-between; color: var(--text-secondary);">
+                                <span>⏱️ 30分钟</span>
+                                <span>🔥 120卡</span>
+                                <span>⭐ 95分</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 个人中心页 -->
+            <div class="page" id="profilePage">
+                <div class="profile-header">
+                    <div class="avatar">👩</div>
+                    <div class="user-name">李阿姨</div>
+                    <div class="user-phone">138****5678</div>
+                    <div class="user-tags">
+                        <div class="tag">58岁</div>
+                        <div class="tag">女</div>
+                        <div class="tag">A型血</div>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stat-mini">
+                        <div class="stat-mini-value">30</div>
+                        <div class="stat-mini-label">连续坚持</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value">22</div>
+                        <div class="stat-mini-label">本月运动</div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-value">48</div>
+                        <div class="stat-mini-label">阅读文章</div>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <div class="menu-title">健康数据</div>
+                    <div class="menu-item">
+                        <div class="menu-item-left">
+                            <div class="menu-icon">📊</div>
+                            <div class="menu-text">健康记录</div>
+                        </div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-left">
+                            <div class="menu-icon">📋</div>
+                            <div class="menu-text">体检报告 <span style="background: var(--error); color: white; padding: 1px 6px; border-radius: 10px; font-size: 11px;">2</span></div>
+                        </div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-left">
+                            <div class="menu-icon">💊</div>
+                            <div class="menu-text">用药管理</div>
+                        </div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <div class="menu-title">个人设置</div>
+                    <div class="menu-item" onclick="app.go('settingsPage')">
+                        <div class="menu-item-left">
+                            <div class="menu-icon">✏️</div>
+                            <div class="menu-text">编辑资料</div>
+                        </div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-left">
+                            <div class="menu-icon">🔔</div>
+                            <div class="menu-text">消息通知 <span style="background: var(--primary); color: white; padding: 1px 6px; border-radius: 10px; font-size: 11px;">3</span></div>
+                        </div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-left">
+                            <div class="menu-icon">🔤</div>
+                            <div class="menu-text">字体大小</div>
+                        </div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-left">
+                            <div class="menu-icon">🔒</div>
+                            <div class="menu-text">隐私设置</div>
+                        </div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <div class="menu-title">帮助与支持</div>
+                    <div class="menu-item">
+                        <div class="menu-item-left">
+                            <div class="menu-icon">📖</div>
+                            <div class="menu-text">使用教程</div>
+                        </div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-left">
+                            <div class="menu-icon">💬</div>
+                            <div class="menu-text">意见反馈</div>
+                        </div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                    <div class="menu-item">
+                        <div class="menu-item-left">
+                            <div class="menu-icon">ℹ️</div>
+                            <div class="menu-text">关于我们</div>
+                        </div>
+                        <div class="menu-arrow">›</div>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <div class="menu-title">紧急联系</div>
+                    <div class="menu-item">
+                        <div class="menu-item-left">
+                            <div class="menu-icon">🆘</div>
+                            <div class="menu-text">李明 (儿子)</div>
+                        </div>
+                        <div class="menu-arrow">📞</div>
+                    </div>
+                </div>
+
+                <button class="logout-btn" onclick="app.logout()">🚪 退出登录</button>
+            </div>
+
+            <!-- 文章详情页 -->
+            <div class="detail-page" id="articleDetailPage">
+                <div class="detail-header">
+                    <button class="detail-back" onclick="app.back()">‹</button>
+                    <div style="flex: 1; text-align: center;">秋季养生小贴士</div>
+                </div>
+                <div class="detail-body">
+                    <div class="content-text">
+                        <p><strong>秋季养生，重点是养肺。</strong>秋季气候干燥，易伤肺阴，因此秋季应重视肺脏的保护。</p>
+
+                        <h2>🌾 秋季养生要点</h2>
+                        <p>秋季是个令人困顿的季节，但这个季节也是养生的好时机。中医认为秋季对应五脏中的肺，因此秋季养生的重点是滋阴润肺。</p>
+                        <ul>
+                            <li><strong>早睡早起：</strong>秋季应该早睡早起，以顺应秋季收敛之气</li>
+                            <li><strong>饮食调理：</strong>多吃润肺的食物，如银耳、蜂蜜、冰糖等</li>
+                            <li><strong>适度运动：</strong>秋季是运动的好季节，但要避免过度劳累</li>
+                            <li><strong>调适情志：</strong>秋季万物凋零，容易引起悲伤情绪</li>
+                        </ul>
+
+                        <h2>🍂 秋季饮食建议</h2>
+                        <p>秋季宜食用一些滋阴润肺的食物：</p>
+                        <ul>
+                            <li>银耳：滋阴润肺的佳品</li>
+                            <li>蜂蜜：养胃护胃，滋阴润肺</li>
+                            <li>百合：清心安神，滋阴润肺</li>
+                            <li>红枣：补气健脾，滋阴润肺</li>
+                            <li>梨：清热降火，润肺止咳</li>
+                        </ul>
+
+                        <h2>⚠️ 注意事项</h2>
+                        <p>秋季养生要特别注意以下几点：</p>
+                        <ul>
+                            <li>避免过度进补，容易引起秋燥</li>
+                            <li>要保持居住环境的湿度</li>
+                            <li>不要过度疲劳，要保证充足睡眠</li>
+                            <li>秋季不宜进行过量运动</li>
+                        </ul>
+
+                        <p style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--text-secondary);">
+                            👤 文章作者：张医生（主任医师）<br>
+                            📅 发布时间：2025年11月1日<br>
+                            👁️ 浏览量：12,500 · ❤️ 点赞：120 · ⭐ 收藏：45
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 指标详情页 -->
+            <div class="detail-page" id="indicatorDetailPage">
+                <div class="detail-header">
+                    <button class="detail-back" onclick="app.back()">‹</button>
+                    <div style="flex: 1; text-align: center;">血压详情</div>
+                </div>
+                <div class="detail-body">
+                    <div style="background: linear-gradient(135deg, #45B7D1, #3CA1BB); color: white; padding: 20px 16px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; margin-bottom: 8px;">❤️ 血压</div>
+                        <div style="font-size: 32px; font-weight: bold; margin-bottom: 8px;">130/85 mmHg</div>
+                        <div style="font-size: 14px; opacity: 0.9;">正常范围: 90-140/60-90</div>
+                    </div>
+
+                    <div style="padding: 16px; background: var(--bg-secondary); border-radius: 8px; margin: 16px 12px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; text-align: center;">
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">平均值</div>
+                                <div style="font-size: 18px; font-weight: bold;">127/83</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">最高值</div>
+                                <div style="font-size: 18px; font-weight: bold;">145/95</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">最低值</div>
+                                <div style="font-size: 18px; font-weight: bold;">115/75</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding: 16px 12px;">
+                        <div style="font-size: 14px; font-weight: bold; margin-bottom: 12px;">📈 趋势变化</div>
+                        <div style="display: flex; gap: 4px; height: 100px; align-items: flex-end;">
+                            <div style="flex: 1; background: linear-gradient(180deg, #3fb950, #3fb95040); border-radius: 4px; height: 60%;"></div>
+                            <div style="flex: 1; background: linear-gradient(180deg, #3fb950, #3fb95040); border-radius: 4px; height: 65%;"></div>
+                            <div style="flex: 1; background: linear-gradient(180deg, #3fb950, #3fb95040); border-radius: 4px; height: 70%;"></div>
+                            <div style="flex: 1; background: linear-gradient(180deg, #f0883e, #f0883e40); border-radius: 4px; height: 80%;"></div>
+                            <div style="flex: 1; background: linear-gradient(180deg, #f0883e, #f0883e40); border-radius: 4px; height: 85%;"></div>
+                            <div style="flex: 1; background: linear-gradient(180deg, #f85149, #f8514940); border-radius: 4px; height: 90%;"></div>
+                            <div style="flex: 1; background: linear-gradient(180deg, #f85149, #f8514940); border-radius: 4px; height: 88%;"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; color: var(--text-secondary);">
+                            <span>7天前</span>
+                            <span>今天</span>
+                        </div>
+                    </div>
+
+                    <div style="padding: 16px 12px;">
+                        <div style="font-size: 14px; font-weight: bold; margin-bottom: 12px;">📋 指标说明</div>
+                        <div style="background: var(--bg-secondary); border-radius: 8px; padding: 12px; font-size: 13px; line-height: 1.8;">
+                            <p>血压是指血液在血管内流动对血管壁的压力，通常用收缩压/舒张压表示。</p>
+                            <p style="margin-top: 12px;"><strong>收缩压：</strong>心脏收缩时的血压</p>
+                            <p><strong>舒张压：</strong>心脏舒张时的血压</p>
+                            <p style="margin-top: 12px; color: var(--success);"><strong>✅ 正常：</strong>< 120/80 mmHg</p>
+                            <p style="color: var(--warning);"><strong>⚠️ 偏高：</strong>120-139/80-89 mmHg</p>
+                            <p style="color: var(--error);"><strong>❌ 高血压：</strong>≥ 140/90 mmHg</p>
+                        </div>
+                    </div>
+
+                    <div style="padding: 16px 12px;">
+                        <div style="font-size: 14px; font-weight: bold; margin-bottom: 12px;">💡 健康建议</div>
+                        <div style="background: linear-gradient(135deg, rgba(240,136,62,0.1), rgba(248,81,73,0.1)); border-radius: 8px; padding: 12px; font-size: 13px;">
+                            <ul style="margin-left: 16px;">
+                                <li>定期测量血压，记录变化趋势</li>
+                                <li>减少盐分摄入（建议日摄盐量 < 6g）</li>
+                                <li>坚持有氧运动（建议每周 3-5 次）</li>
+                                <li>保持心情舒畅，避免过度紧张</li>
+                                <li>规律作息，保证充足睡眠</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-large" style="margin-top: 16px;">+ 记录血压</button>
+                </div>
+            </div>
+
+            <!-- 运动详情页 -->
+            <div class="detail-page" id="exerciseDetailPage">
+                <div class="detail-header" style="background: linear-gradient(135deg, #ff7043, #ff5722);">
+                    <button class="detail-back" onclick="app.back()">‹</button>
+                    <div style="flex: 1; text-align: center;">🥋 太极拳</div>
+                </div>
+                <div class="detail-body">
+                    <div style="padding: 16px 12px;">
+                        <div style="background: var(--bg-secondary); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                            <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">运动强度</div>
+                            <div style="font-size: 16px; font-weight: bold; margin-bottom: 12px;">🟡 低强度 · 30分钟 · 约120千卡</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">适合 45 岁以上人群 · 无器材要求</div>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 12px;">✨ 主要功效</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <div style="background: rgba(63,185,80,0.1); color: var(--success); padding: 6px 12px; border-radius: 20px; font-size: 12px;">改善平衡</div>
+                                <div style="background: rgba(63,185,80,0.1); color: var(--success); padding: 6px 12px; border-radius: 20px; font-size: 12px;">舒缓关节</div>
+                                <div style="background: rgba(63,185,80,0.1); color: var(--success); padding: 6px 12px; border-radius: 20px; font-size: 12px;">调节心率</div>
+                                <div style="background: rgba(63,185,80,0.1); color: var(--success); padding: 6px 12px; border-radius: 20px; font-size: 12px;">放松身心</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 12px;">📖 运动介绍</div>
+                            <p style="font-size: 13px; line-height: 1.8;">太极拳是一项柔和的传统功法，具有调理身体、增强体质、促进健康的功能。通过缓慢的动作和深呼吸，可以放松身心、改善平衡、增强肌力。</p>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 12px;">🔥 热身准备</div>
+                            <ol style="margin-left: 16px; font-size: 13px; line-height: 1.8;">
+                                <li>站立，双脚并拢，放松身体</li>
+                                <li>转动头部，10-15次</li>
+                                <li>转动肩关节，10-15次</li>
+                                <li>弯腰，让手臂自然下垂，轻摇</li>
+                                <li>原地踏步 1-2 分钟</li>
+                            </ol>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 12px;">🏋️ 动作步骤</div>
+                            <div style="background: var(--bg-secondary); border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                                <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">第 1/5 步 - 起势</div>
+                                <p style="font-size: 12px; color: var(--text-secondary);">站立，两脚并拢，双臂自然垂于身体两侧。缓慢抬起双臂，两手心相对，掌心向下，降至腰部高度。</p>
+                            </div>
+                            <div style="background: var(--bg-secondary); border-radius: 8px; padding: 12px;">
+                                <div style="font-size: 13px; font-weight: bold; margin-bottom: 8px;">第 2/5 步 - 野马分鬃</div>
+                                <p style="font-size: 12px; color: var(--text-secondary);">转身，弓步，双臂随身体转动，一臂上升，一臂下降，如同野马分开鬃毛的动作。</p>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 16px;">
+                            <div style="font-size: 14px; font-weight: bold; margin-bottom: 12px; padding: 12px; background: linear-gradient(135deg, rgba(248,81,73,0.1), rgba(240,136,62,0.1)); border-radius: 8px;">
+                                ⚠️ 注意事项
+                            </div>
+                            <ul style="margin-left: 16px; font-size: 13px; line-height: 1.8;">
+                                <li>身体有不适请停止运动</li>
+                                <li>穿着宽松舒适的衣服</li>
+                                <li>选择平坦宽敞的地方</li>
+                                <li>运动后要做放松活动</li>
+                            </ul>
+                        </div>
+
+                        <button class="btn btn-primary btn-large" onclick="app.startExercise('太极拳')">▶ 开始运动</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设置页 -->
+            <div class="detail-page" id="settingsPage">
+                <div class="detail-header">
+                    <button class="detail-back" onclick="app.back()">‹</button>
+                    <div style="flex: 1; text-align: center;">设置</div>
+                </div>
+                <div class="detail-body">
+                    <div class="menu-section" style="margin-top: 12px;">
+                        <div class="menu-title">显示设置</div>
+                        <div class="menu-item">
+                            <div class="menu-item-left">
+                                <div class="menu-icon">🔤</div>
+                                <div class="menu-text">字体大小</div>
+                            </div>
+                            <div class="menu-arrow">›</div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-left">
+                                <div class="menu-icon">🌙</div>
+                                <div class="menu-text">高对比度</div>
+                            </div>
+                            <div class="switch">
+                                <div class="switch-dot"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="menu-section">
+                        <div class="menu-title">语音设置</div>
+                        <div class="menu-item">
+                            <div class="menu-item-left">
+                                <div class="menu-icon">🔊</div>
+                                <div class="menu-text">语音播报</div>
+                            </div>
+                            <div class="switch on">
+                                <div class="switch-dot"></div>
+                            </div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-left">
+                                <div class="menu-icon">⚡</div>
+                                <div class="menu-text">播报速度</div>
+                            </div>
+                            <div class="menu-arrow">›</div>
+                        </div>
+                    </div>
+
+                    <div class="menu-section">
+                        <div class="menu-title">隐私与安全</div>
+                        <div class="menu-item">
+                            <div class="menu-item-left">
+                                <div class="menu-icon">☁️</div>
+                                <div class="menu-text">云端同步</div>
+                            </div>
+                            <div class="switch on">
+                                <div class="switch-dot"></div>
+                            </div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-left">
+                                <div class="menu-icon">📋</div>
+                                <div class="menu-text">隐私政策</div>
+                            </div>
+                            <div class="menu-arrow">›</div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-left">
+                                <div class="menu-icon">📄</div>
+                                <div class="menu-text">用户协议</div>
+                            </div>
+                            <div class="menu-arrow">›</div>
+                        </div>
+                    </div>
+
+                    <div class="menu-section">
+                        <div class="menu-title">其他</div>
+                        <div class="menu-item">
+                            <div class="menu-item-left">
+                                <div class="menu-icon">💬</div>
+                                <div class="menu-text">意见反馈</div>
+                            </div>
+                            <div class="menu-arrow">›</div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-left">
+                                <div class="menu-icon">ℹ️</div>
+                                <div class="menu-text">版本信息</div>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">v1.0.0</div>
+                        </div>
+                        <div class="menu-item">
+                            <div class="menu-item-left">
+                                <div class="menu-icon">🧹</div>
+                                <div class="menu-text">清除缓存</div>
+                            </div>
+                            <div class="menu-arrow">›</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TabBar -->
+        <div class="tabbar">
+            <div class="tab-item active" onclick="app.go('indexPage')">
+                <div class="tab-icon">🏠</div>
+                <div>首页</div>
+            </div>
+            <div class="tab-item" onclick="app.go('knowledgePage')">
+                <div class="tab-icon">📚</div>
+                <div>养生知识</div>
+            </div>
+            <div class="tab-item" onclick="app.go('reportPage')">
+                <div class="tab-icon">🩺</div>
+                <div>体检报告</div>
+            </div>
+            <div class="tab-item" onclick="app.go('exercisePage')">
+                <div class="tab-icon">🏋️</div>
+                <div>运动指导</div>
+            </div>
+            <div class="tab-item" onclick="app.go('profilePage')">
+                <div class="tab-icon">👤</div>
+                <div>个人中心</div>
+            </div>
+        </div>
+
+        <!-- 运动计时器 -->
+        <div class="exercise-timer" id="exerciseTimer">
+            <div class="timer-display" id="timerDisplay">00:00</div>
+            <div class="timer-label" id="timerLabel">目标: 30 分钟</div>
+            <div class="timer-controls">
+                <button class="timer-btn" id="pauseBtn" onclick="app.pauseTimer()">⏸ 暂停</button>
+                <button class="timer-btn stop" onclick="app.stopTimer()">⏹ 停止</button>
+            </div>
+        </div>
+
+        <!-- 语音助手悬浮按钮 -->
+        <button class="voice-btn" id="voiceBtn" onclick="app.toggleVoice()">🔊</button>
+    </div>
+
+    <script>
+        const app = {
+            currentPage: 'loginPage',
+            reportStep: 1,
+            exerciseTimerInterval: null,
+            exerciseSeconds: 0,
+            isListening: false,
+
+            go(page) {
+                document.getElementById(this.currentPage).classList.remove('active');
+                document.getElementById(page).classList.add('active');
+                this.currentPage = page;
+
+                // 更新TabBar
+                document.querySelectorAll('.tab-item').forEach((item, idx) => {
+                    item.classList.remove('active');
+                });
+                if (page === 'indexPage') document.querySelectorAll('.tab-item')[0].classList.add('active');
+                else if (page === 'knowledgePage') document.querySelectorAll('.tab-item')[1].classList.add('active');
+                else if (page === 'reportPage') document.querySelectorAll('.tab-item')[2].classList.add('active');
+                else if (page === 'exercisePage') document.querySelectorAll('.tab-item')[3].classList.add('active');
+                else if (page === 'profilePage') document.querySelectorAll('.tab-item')[4].classList.add('active');
+            },
+
+            back() {
+                document.querySelectorAll('.detail-page').forEach(p => p.classList.remove('active'));
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById(this.currentPage).classList.add('active');
+            },
+
+            login(method) {
+                alert(`正在通过${method === 'wechat' ? '微信' : '手机号'}登录...`);
+                this.go('indexPage');
+            },
+
+            logout() {
+                if (confirm('确定要退出登录吗？')) {
+                    this.go('loginPage');
+                }
+            },
+
+            nextReportStep() {
+                if (this.reportStep === 1) {
+                    this.reportStep = 2;
+                    this.startOcrProgress();
+                } else if (this.reportStep === 2) {
+                    this.reportStep = 3;
+                } else {
+                    this.go('indexPage');
+                    this.reportStep = 1;
+                }
+                this.updateReportStep();
+            },
+
+            updateReportStep() {
+                document.querySelectorAll('.report-step').forEach(s => s.classList.remove('active'));
+                document.querySelector(`[data-step="${this.reportStep}"]`).classList.add('active');
+            },
+
+            startOcrProgress() {
+                let progress = 35;
+                const timer = setInterval(() => {
+                    progress += Math.random() * 30;
+                    if (progress > 99) progress = 99;
+                    document.getElementById('ocrProgress').style.width = progress + '%';
+                    if (progress >= 99) {
+                        clearInterval(timer);
+                        setTimeout(() => this.nextReportStep(), 500);
+                    }
+                }, 800);
+            },
+
+            selectReportType(elem, type) {
+                document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+                elem.classList.add('active');
+            },
+
+            switchTab(btn, tabIndex) {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach((t, i) => {
+                    t.classList.toggle('active', i === tabIndex);
+                });
+            },
+
+            switchCategory(tag) {
+                document.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
+                tag.classList.add('active');
+            },
+
+            switchExerciseTab(btn, tab) {
+                document.querySelectorAll('.tabs .tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('[id^="exerciseTab-"]').forEach(t => t.classList.remove('active'));
+                document.getElementById(`exerciseTab-${tab}`).classList.add('active');
+            },
+
+            toggleReminder(elem) {
+                const switchEl = elem.querySelector('.switch');
+                switchEl.classList.toggle('on');
+            },
+
+            toggleVoice() {
+                const voiceBtn = document.getElementById('voiceBtn');
+                this.isListening = !this.isListening;
+                if (this.isListening) {
+                    voiceBtn.classList.add('voice-pulse');
+                    voiceBtn.textContent = '🎤';
+                } else {
+                    voiceBtn.classList.remove('voice-pulse');
+                    voiceBtn.textContent = '🔊';
+                }
+            },
+
+            startExercise(name) {
+                document.getElementById('exerciseTimer').classList.add('active');
+                document.getElementById('timerLabel').textContent = `${name} · 目标: 30 分钟`;
+                this.exerciseSeconds = 0;
+                this.exerciseTimerInterval = setInterval(() => {
+                    this.exerciseSeconds++;
+                    const mins = Math.floor(this.exerciseSeconds / 60);
+                    const secs = this.exerciseSeconds % 60;
+                    document.getElementById('timerDisplay').textContent = 
+                        String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+                }, 1000);
+            },
+
+            pauseTimer() {
+                if (this.exerciseTimerInterval) {
+                    clearInterval(this.exerciseTimerInterval);
+                    this.exerciseTimerInterval = null;
+                    document.getElementById('pauseBtn').textContent = '▶ 继续';
+                } else {
+                    this.exerciseTimerInterval = setInterval(() => {
+                        this.exerciseSeconds++;
+                        const mins = Math.floor(this.exerciseSeconds / 60);
+                        const secs = this.exerciseSeconds % 60;
+                        document.getElementById('timerDisplay').textContent = 
+                            String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+                    }, 1000);
+                    document.getElementById('pauseBtn').textContent = '⏸ 暂停';
+                }
+            },
+
+            stopTimer() {
+                if (this.exerciseTimerInterval) {
+                    clearInterval(this.exerciseTimerInterval);
+                    this.exerciseTimerInterval = null;
+                }
+                document.getElementById('exerciseTimer').classList.remove('active');
+                alert(`恭喜！本次运动已完成\n时长: ${Math.floor(this.exerciseSeconds / 60)} 分 ${this.exerciseSeconds % 60} 秒`);
+            }
+        };
+
+        // 页面加载完成后隐藏加载遮罩
+        window.addEventListener('load', () => {
+            console.log('✅ 银发健康养生 H5体验版已加载');
+        });
+    </script>
+</body>
+</html>
